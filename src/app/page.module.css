@@ -1,0 +1,1046 @@
+/* -------------------------------------------------------------
+ * Layout & General Containers
+ * ------------------------------------------------------------- */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.logoGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-primary), hsl(260, 80%, 65%));
+  box-shadow: 0 0 20px var(--accent-primary-glow);
+}
+
+.trophyIcon {
+  color: #fff;
+  width: 24px;
+  height: 24px;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(to right, var(--text-primary), hsl(210, 40%, 85%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------------
+ * Buttons & Inputs
+ * ------------------------------------------------------------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.buttonPrimary {
+  background: var(--accent-primary);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--accent-primary-glow);
+}
+
+.buttonPrimary:hover {
+  background: hsl(244, 75%, 70%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px var(--accent-primary-glow);
+}
+
+.buttonPrimary:active {
+  transform: translateY(0);
+}
+
+.buttonSecondary {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--glass-border-hover);
+  color: #fff;
+}
+
+.buttonSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonGhost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.buttonGhost:hover {
+  background: var(--glass-bg);
+  color: var(--text-primary);
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+/* -------------------------------------------------------------
+ * Alerts & Labels
+ * ------------------------------------------------------------- */
+
+.syncSuccessLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--lc-easy);
+  background: var(--lc-easy-bg);
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.syncErrorLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--lc-hard);
+  background: var(--lc-hard-bg);
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* -------------------------------------------------------------
+ * Empty State
+ * ------------------------------------------------------------- */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 2rem;
+  background: var(--glass-bg);
+  border: 1px dashed var(--glass-border);
+  border-radius: 16px;
+  margin-top: 2rem;
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.emptyState h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.emptyState p {
+  color: var(--text-secondary);
+  max-width: 400px;
+  margin-bottom: 2rem;
+}
+
+/* -------------------------------------------------------------
+ * Podium / Top 3 Section
+ * ------------------------------------------------------------- */
+
+.podiumSection {
+  margin-bottom: 4rem;
+}
+
+.podiumContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1.5rem;
+  padding-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.podiumCard {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: all var(--transition-slow);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px var(--glass-shadow);
+}
+
+.podiumCard:hover {
+  transform: translateY(-8px);
+  border-color: var(--glass-border-hover);
+}
+
+.podiumCardFirst {
+  width: 310px;
+  padding: 2.5rem 1.75rem;
+  z-index: 10;
+  /* Glowing background for 1st place */
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.04) 0%, rgba(15, 23, 42, 0.45) 100%);
+}
+
+/* Podium Rank Highlights */
+.goldMedal {
+  border-color: rgba(255, 215, 0, 0.25);
+  box-shadow: 0 15px 40px rgba(255, 215, 0, 0.05), 0 0 0 1px rgba(255, 215, 0, 0.1);
+}
+.goldMedal:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 20px 45px rgba(255, 215, 0, 0.12);
+}
+
+.silverMedal {
+  border-color: rgba(192, 192, 192, 0.2);
+}
+.silverMedal:hover {
+  border-color: rgba(192, 192, 192, 0.4);
+}
+
+.bronzeMedal {
+  border-color: rgba(205, 127, 50, 0.15);
+}
+.bronzeMedal:hover {
+  border-color: rgba(205, 127, 50, 0.35);
+}
+
+/* Avatar details */
+.podiumAvatarContainer {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.podiumAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--glass-border);
+  z-index: 2;
+  position: relative;
+}
+
+.podiumCardFirst .podiumAvatar {
+  width: 100px;
+  height: 100px;
+}
+
+.goldMedal .podiumAvatar { border-color: var(--gold); }
+.silverMedal .podiumAvatar { border-color: var(--silver); }
+.bronzeMedal .podiumAvatar { border-color: var(--bronze); }
+
+.avatarGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  filter: blur(15px);
+  z-index: 1;
+  opacity: 0.4;
+}
+.goldMedal .avatarGlow { background: var(--gold); }
+.silverMedal .avatarGlow { background: var(--silver); }
+.bronzeMedal .avatarGlow { background: var(--bronze); }
+
+/* User tags */
+.podiumBadge {
+  position: absolute;
+  top: -12px;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.goldMedal .podiumBadge { background: var(--gold); color: #000; }
+.silverMedal .podiumBadge { background: var(--silver); color: #000; }
+.bronzeMedal .podiumBadge { background: var(--bronze); color: #fff; }
+
+.podiumUserInfo {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.podiumName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.podiumCardFirst .podiumName {
+  font-size: 1.25rem;
+}
+
+.podiumUsername {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+}
+.podiumUsername:hover {
+  color: var(--accent-primary);
+}
+
+/* Points */
+.podiumScoreContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.podiumScoreVal {
+  font-family: var(--font-heading);
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.podiumCardFirst .podiumScoreVal {
+  font-size: 2.75rem;
+  background: linear-gradient(135deg, #FFF, var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.goldMedal .podiumScoreVal { color: var(--gold); }
+.silverMedal .podiumScoreVal { color: var(--silver); }
+.bronzeMedal .podiumScoreVal { color: var(--bronze); }
+
+.podiumScoreLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+/* Substats breakdown */
+.podiumStats {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  font-size: 0.75rem;
+  margin-bottom: 0.75rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.podiumStat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.statDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.podiumRating {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* -------------------------------------------------------------
+ * Search & Filtering Controls
+ * ------------------------------------------------------------- */
+
+.controlsBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.searchBox {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+  max-width: 450px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: all var(--transition-fast);
+}
+
+.searchInput:focus {
+  border-color: var(--accent-primary);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
+}
+
+.clearSearch {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.clearSearch:hover {
+  color: var(--text-primary);
+}
+
+.sortOptions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sortLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.sortButtonGroup {
+  display: flex;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 0.25rem;
+  gap: 0.15rem;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.sortButton:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sortButtonActive {
+  background: var(--bg-tertiary);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* -------------------------------------------------------------
+ * Leaderboard Grid/Table
+ * ------------------------------------------------------------- */
+
+.tableCard {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px var(--glass-shadow);
+  backdrop-filter: blur(12px);
+}
+
+.tableResponsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.table th {
+  padding: 1.25rem 1.5rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  vertical-align: middle;
+}
+
+.tableRow {
+  transition: background-color var(--transition-fast);
+}
+
+.tableRow:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Rank column */
+.rankCell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rankNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.rank1 { background: var(--gold); color: #000; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+.rank2 { background: var(--silver); color: #000; }
+.rank3 { background: var(--bronze); color: #fff; }
+
+/* User Profile Column */
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userAvatarSmall {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--glass-border);
+}
+
+.userNameBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.userDisplayName {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.userUsername {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-top: 0.05rem;
+}
+.userUsername:hover {
+  color: var(--accent-primary);
+}
+
+/* Score Highlight column */
+.scoreHighlight {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  text-shadow: 0 0 12px var(--accent-primary-glow);
+}
+
+/* Solved Pills */
+.solvedPillsContainer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.solvedPill {
+  display: inline-flex;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.easyPill {
+  color: var(--lc-easy);
+  background: var(--lc-easy-bg);
+}
+
+.mediumPill {
+  color: var(--lc-medium);
+  background: var(--lc-medium-bg);
+}
+
+.hardPill {
+  color: var(--lc-hard);
+  background: var(--lc-hard-bg);
+}
+
+.totalPill {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+}
+
+/* Rating Column */
+.ratingTableVal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ratingNum {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ratingRank {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.05rem;
+}
+
+.syncAgeText {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.noResults {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+  gap: 0.5rem;
+}
+
+/* -------------------------------------------------------------
+ * Add Friend Dialog / Modal
+ * ------------------------------------------------------------- */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border-hover);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modalCloseButton {
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
+}
+.modalCloseButton:hover {
+  color: var(--text-primary);
+  background: var(--glass-bg);
+}
+
+.modalBody {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modalError {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--lc-hard-bg);
+  border: 1px solid rgba(239, 71, 67, 0.2);
+  border-radius: 8px;
+  color: var(--lc-hard);
+  font-size: 0.85rem;
+}
+
+.modalSuccess {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--lc-easy-bg);
+  border: 1px solid rgba(0, 184, 163, 0.2);
+  border-radius: 8px;
+  color: var(--lc-easy);
+  font-size: 0.85rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.modalInput {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: all var(--transition-fast);
+}
+
+.modalInput:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+}
+
+.formTip {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--glass-border);
+  background: rgba(0,0,0,0.1);
+}
+
+.buttonLoading {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+/* -------------------------------------------------------------
+ * Supabase DB Setup Guide View
+ * ------------------------------------------------------------- */
+
+.setupContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+
+.setupCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 720px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.4s ease-out;
+}
+
+.setupHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.setupHeader h1 {
+  font-size: 2.25rem;
+  margin: 0.5rem 0;
+  background: linear-gradient(135deg, #FFF, var(--accent-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.setupHeader p {
+  color: var(--text-secondary);
+}
+
+.badge {
+  font-family: var(--font-heading);
+  background: var(--accent-primary-glow);
+  color: hsl(244, 75%, 75%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+
+.infoAlert {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: hsl(210, 40%, 90%);
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}
+
+.errorAlert {
+  background: var(--lc-hard-bg);
+  border: 1px solid rgba(239, 71, 67, 0.2);
+  color: hsl(0, 80%, 95%);
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}
+
+.errorAlert strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  color: var(--lc-hard);
+}
+
+.tip {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.setupSteps h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 0.5rem;
+}
+
+.setupSteps ol {
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.setupSteps li {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.setupSteps li strong {
+  color: var(--text-primary);
+}
+
+.codeBlock {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.75rem;
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: hsl(150, 40%, 80%);
+  max-height: 250px;
+}
+
+/* -------------------------------------------------------------
+ * Responsive Media Queries
+ * ------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .podiumContainer {
+    align-items: center;
+  }
+  
+  .podiumCardFirst {
+    order: -1; /* Display 1st place card on top in small layouts */
+    width: 280px;
+    padding: 1.75rem 1.5rem;
+  }
+  
+  .controlsBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .searchBox {
+    max-width: 100%;
+  }
+
+  .sortOptions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sortButtonGroup {
+    width: 100%;
+  }
+
+  .sortButton {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actionGroup {
+    width: 100%;
+  }
+
+  .actionGroup button {
+    flex: 1;
+  }
+
+  .podiumCard {
+    width: 100%;
+  }
+
+  .table td, .table th {
+    padding: 0.75rem 1rem;
+  }
+
+  .solvedPillsContainer {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+}
+
+.dbErrorBanner {
+  background: var(--lc-hard-bg);
+  border: 1px solid rgba(239, 71, 67, 0.2);
+  color: var(--lc-hard);
+  padding: 0.85rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  animation: slideUp 0.3s ease-out;
+}

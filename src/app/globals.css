@@ -1,0 +1,142 @@
+:root {
+  /* Colors */
+  --bg-primary: hsl(222, 47%, 6%);
+  --bg-secondary: hsl(222, 35%, 11%);
+  --bg-tertiary: hsl(222, 25%, 16%);
+  --text-primary: hsl(210, 40%, 98%);
+  --text-secondary: hsl(215, 20%, 68%);
+  --text-muted: hsl(215, 12%, 48%);
+  
+  --accent-primary: hsl(244, 75%, 66%);     /* Indigo accent */
+  --accent-primary-glow: hsla(244, 75%, 66%, 0.3);
+  
+  /* Difficulty colors */
+  --lc-easy: #00B8A3;
+  --lc-easy-bg: rgba(0, 184, 163, 0.1);
+  --lc-medium: #FFC01E;
+  --lc-medium-bg: rgba(255, 192, 30, 0.1);
+  --lc-hard: #EF4743;
+  --lc-hard-bg: rgba(239, 71, 67, 0.1);
+  
+  /* Podiums */
+  --gold: #FFD700;
+  --gold-glow: rgba(255, 215, 0, 0.15);
+  --silver: #C0C0C0;
+  --silver-glow: rgba(192, 192, 192, 0.12);
+  --bronze: #CD7F32;
+  --bronze-glow: rgba(205, 127, 50, 0.1);
+  
+  /* Glassmorphism tokens */
+  --glass-bg: rgba(15, 23, 42, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-border-hover: rgba(255, 255, 255, 0.12);
+  --glass-shadow: rgba(0, 0, 0, 0.4);
+  
+  /* Typography */
+  --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--font-outfit), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Base resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.04) 0%, transparent 40%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+/* Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 24px rgba(99, 102, 241, 0.5);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
