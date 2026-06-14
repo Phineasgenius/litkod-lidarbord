@@ -139,44 +139,61 @@ export async function POST() {
           if (overtakenUser && overtakenUser.username !== newUserObj.username) {
             const takeoverDescription = `just overtook ${overtakenUser.display_name} to claim rank ${newIdx + 1}! ⚔️`;
             
-            const takeoverUpdate = {
+            // Use a separate key for takeover so it does NOT override the activity update
+            const takeoverKey = `${newUserObj.username}:takeover`;
+            updatesToInsertMap[takeoverKey] = [{
               username: newUserObj.username,
               display_name: newUserObj.display_name,
               avatar_url: newUserObj.avatar_url,
               description: takeoverDescription,
-            };
-
-            // Initialize list if it doesn't exist
-            if (!updatesToInsertMap[newUserObj.username]) {
-              updatesToInsertMap[newUserObj.username] = [];
-            }
-            // Add takeover update to user's update pool
-            updatesToInsertMap[newUserObj.username].push(takeoverUpdate);
+            }];
           }
         }
       }
     }
 
-    // 4. Clean previous updates and insert new ones (enforcing one latest update per user)
-    const activeUpdateUsers = Object.keys(updatesToInsertMap);
-    for (const username of activeUpdateUsers) {
+    // 4. Clean previous matching update type and insert new one per key
+    const activeUpdateKeys = Object.keys(updatesToInsertMap);
+    for (const key of activeUpdateKeys) {
       try {
-        // Delete all old updates for this user
+        const isTakeover = key.endsWith(':takeover');
+        const realUsername = isTakeover ? key.replace(':takeover', '') : key;
+        const userPool = updatesToInsertMap[key];
+        if (!userPool || userPool.length === 0) continue;
+
+        const latestUpdate = userPool[userPool.length - 1];
+
+        // Only delete the same "type" of notification to preserve the other type:
+        // Takeover keys delete rows whose description contains '⚔️'
+        // Activity keys delete rows whose description does NOT contain '⚔️'
+        const existingRows = await supabaseAdmin
+          .from('leaderboard_updates')
+          .select('id, description')
+          .eq('username', realUsername);
+
+        if (!existingRows.error && existingRows.data) {
+          const idsToDelete = existingRows.data
+            .filter((row: any) => isTakeover 
+              ? row.description.includes('⚔️') 
+              : !row.description.includes('⚔️')
+            )
+            .map((row: any) => row.id);
+
+          if (idsToDelete.length > 0) {
+            await supabaseAdmin
+              .from('leaderboard_updates')
+              .delete()
+              .in('id', idsToDelete);
+          }
+        }
+
+        // Insert the latest update for this key
         await supabaseAdmin
           .from('leaderboard_updates')
-          .delete()
-          .eq('username', username);
+          .insert([latestUpdate]);
 
-        // Insert only the latest update of this user to avoid spamming
-        const userPool = updatesToInsertMap[username];
-        if (userPool && userPool.length > 0) {
-          const latestUpdate = userPool[userPool.length - 1]; // Get the most recent one
-          await supabaseAdmin
-            .from('leaderboard_updates')
-            .insert([latestUpdate]);
-        }
       } catch (dbErr) {
-        console.warn(`Could not update notifications for user ${username}:`, dbErr);
+        console.warn(`Could not update notifications for key ${key}:`, dbErr);
       }
     }
 
