@@ -125,39 +125,66 @@ export async function POST() {
       .select('*');
 
     if (!refetchError && newUsers) {
-      // Sort lists by score descending to get rankings
-      const oldUsersSorted = [...oldUsers].sort((a: any, b: any) => b.score - a.score);
-      const newUsersSorted = [...newUsers].sort((a: any, b: any) => b.score - a.score);
+      // Define the three leaderboard modes with human-friendly labels
+      const leaderboardModes = [
+        { key: 'score',          label: 'Score',    emoji: '⭐' },
+        { key: 'total_solved',   label: 'Problems', emoji: '🧩' },
+        { key: 'contest_rating', label: 'Contest',  emoji: '🏆' },
+      ] as const;
 
-      for (let newIdx = 0; newIdx < newUsersSorted.length; newIdx++) {
-        const newUserObj = newUsersSorted[newIdx];
-        const oldIdx = oldUsersSorted.findIndex((u: any) => u.username === newUserObj.username);
+      for (const mode of leaderboardModes) {
+        const field = mode.key;
 
-        // If a user climbed in rank (index decreased)
-        if (oldIdx !== -1 && newIdx < oldIdx) {
-          const overtakenUser = oldUsersSorted[newIdx];
-          if (overtakenUser && overtakenUser.username !== newUserObj.username) {
-            const takeoverDescription = `just overtook ${overtakenUser.display_name} to claim rank ${newIdx + 1}! ⚔️`;
-            
-            // Use a separate key for takeover so it does NOT override the activity update
-            const takeoverKey = `${newUserObj.username}:takeover`;
+        // Sort old and new snapshots by this mode's metric (descending, nulls last)
+        const sortFn = (a: any, b: any) => (b[field] || 0) - (a[field] || 0);
+        const oldSorted = [...oldUsers].sort(sortFn);
+        const newSorted = [...newUsers].sort(sortFn);
+
+        for (let newIdx = 0; newIdx < newSorted.length; newIdx++) {
+          const newUserObj = newSorted[newIdx];
+          const oldIdx = oldSorted.findIndex((u: any) => u.username === newUserObj.username);
+
+          // Only fire if the user actually moved up in rank
+          if (oldIdx !== -1 && newIdx < oldIdx) {
+            const ranksBefore = oldIdx + 1;
+            const ranksNow   = newIdx + 1;
+            const gained     = ranksBefore - ranksNow;
+
+            // Who occupies the slot they moved into?
+            const overtakenUser = oldSorted[newIdx];
+            const overtakenName = overtakenUser && overtakenUser.username !== newUserObj.username
+              ? overtakenUser.display_name
+              : null;
+
+            let description: string;
+            if (gained === 1 && overtakenName) {
+              description = `overtook ${overtakenName} to reach rank ${ranksNow} in the ${mode.label} leaderboard! ${mode.emoji}⚔️`;
+            } else if (overtakenName) {
+              description = `moved up ${gained} rank${gained > 1 ? 's' : ''} to rank ${ranksNow} in the ${mode.label} leaderboard, passing ${overtakenName}! ${mode.emoji}⚔️`;
+            } else {
+              description = `moved up ${gained} rank${gained > 1 ? 's' : ''} to rank ${ranksNow} in the ${mode.label} leaderboard! ${mode.emoji}⚔️`;
+            }
+
+            // Separate key per mode so they never overwrite each other or the activity update
+            const takeoverKey = `${newUserObj.username}:takeover:${field}`;
             updatesToInsertMap[takeoverKey] = [{
-              username: newUserObj.username,
+              username:     newUserObj.username,
               display_name: newUserObj.display_name,
-              avatar_url: newUserObj.avatar_url,
-              description: takeoverDescription,
+              avatar_url:   newUserObj.avatar_url,
+              description,
             }];
           }
         }
       }
     }
 
+
     // 4. Clean previous matching update type and insert new one per key
     const activeUpdateKeys = Object.keys(updatesToInsertMap);
     for (const key of activeUpdateKeys) {
       try {
-        const isTakeover = key.endsWith(':takeover');
-        const realUsername = isTakeover ? key.replace(':takeover', '') : key;
+        const isTakeover = key.includes(':takeover:');
+        const realUsername = isTakeover ? key.split(':takeover:')[0] : key;
         const userPool = updatesToInsertMap[key];
         if (!userPool || userPool.length === 0) continue;
 
