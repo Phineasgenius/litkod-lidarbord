@@ -8,7 +8,7 @@ export async function POST() {
       return NextResponse.json({ error: 'Supabase is not configured on the server. Please check your environment variables.' }, { status: 500 });
     }
 
-    // 1. Fetch all users from the leaderboard (this represents their status BEFORE the sync)
+    // 1. Fetch all users BEFORE sync (used as the "old" snapshot for comparison)
     const { data: oldUsers, error: fetchError } = await supabaseAdmin
       .from('leetcode_users')
       .select('*');
@@ -22,29 +22,38 @@ export async function POST() {
       return NextResponse.json({ success: true, message: 'No users to sync.', results: [] });
     }
 
-    // Optional: Add global cooldown. If the most recently synced user was updated within the last 15 seconds, return early.
+    // Global cooldown: skip if synced within the last 15 seconds
     const mostRecentSync = Math.max(...oldUsers.map((u: any) => new Date(u.last_synced_at).getTime()));
     const timeSinceLastSync = Date.now() - mostRecentSync;
-    const COOLDOWN_MS = 15 * 1000; // 15 seconds cooldown
+    const COOLDOWN_MS = 15 * 1000;
 
     if (timeSinceLastSync < COOLDOWN_MS) {
       return NextResponse.json(
-        { 
+        {
           error: 'Please wait at least 15 seconds between sync operations.',
-          retryAfterSeconds: Math.ceil((COOLDOWN_MS - timeSinceLastSync) / 1000)
-        }, 
+          retryAfterSeconds: Math.ceil((COOLDOWN_MS - timeSinceLastSync) / 1000),
+        },
         { status: 429 }
       );
     }
 
-    // Map to keep track of individual sync updates
-    const updatesToInsertMap: { [username: string]: any[] } = {};
+    // Build old Score rank map BEFORE syncing (username -> 1-based rank)
+    const oldSortedByScore = [...oldUsers].sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
+    const oldRankMap: { [username: string]: number } = {};
+    oldSortedByScore.forEach((u: any, idx: number) => {
+      oldRankMap[u.username] = idx + 1;
+    });
 
-    // 2. Perform parallel synchronization
+    // Map to accumulate notifications; keys:
+    //   username          -> activity notification (solved, milestone, rating)
+    //   username:takeover -> rank overtake notification (Score leaderboard only)
+    const updatesToInsertMap: { [key: string]: any[] } = {};
+
+    // 2. Parallel sync: fetch fresh LeetCode stats and update DB
     const syncPromises = oldUsers.map(async (user: any) => {
       try {
         const stats = await fetchLeetCodeStats(user.username);
-        
+
         const { error: updateError } = await supabaseAdmin
           .from('leetcode_users')
           .update({
@@ -61,19 +70,18 @@ export async function POST() {
           })
           .eq('id', user.id);
 
-        if (updateError) {
-          throw updateError;
-        }
+        if (updateError) throw updateError;
 
-        // Compare old vs new stats to find changes
+        // --- Activity notifications ---
         const solvedDiff = stats.totalSolved - (user.total_solved || 0);
         const newScore = stats.score;
         const oldScore = user.score || 0;
         const newRating = stats.contestRating;
         const oldRating = user.contest_rating || 0;
 
-        const userUpdates = [];
+        const userUpdates: any[] = [];
 
+        // Problems solved
         if (solvedDiff > 0 && user.total_solved > 0) {
           userUpdates.push({
             username: user.username,
@@ -83,7 +91,7 @@ export async function POST() {
           });
         }
 
-        // Score milestones (crossed 100, 250, 500, 750, 1000, etc.)
+        // Score milestones
         const scoreMilestones = [100, 250, 500, 750, 1000, 1500, 2000];
         for (const m of scoreMilestones) {
           if (newScore >= m && oldScore < m && oldScore > 0) {
@@ -96,7 +104,7 @@ export async function POST() {
           }
         }
 
-        // Rating peaks / milestones
+        // Contest rating peak
         if (newRating > oldRating && oldRating > 0) {
           userUpdates.push({
             username: user.username,
@@ -119,90 +127,80 @@ export async function POST() {
 
     const results = await Promise.all(syncPromises);
 
-    // 3. Refetch users to establish new rankings and detect takeovers
+    // 3. Refetch updated users to get new scores for rank comparison
     const { data: newUsers, error: refetchError } = await supabaseAdmin
       .from('leetcode_users')
       .select('*');
 
     if (!refetchError && newUsers) {
-      // Define the three leaderboard modes with human-friendly labels
-      const leaderboardModes = [
-        { key: 'score',          label: 'Score',    emoji: '⭐' },
-        { key: 'total_solved',   label: 'Problems', emoji: '🧩' },
-        { key: 'contest_rating', label: 'Contest',  emoji: '🏆' },
-      ] as const;
+      // Build new Score rank map AFTER syncing (username -> 1-based rank)
+      const newSortedByScore = [...newUsers].sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
+      const newRankMap: { [username: string]: number } = {};
+      newSortedByScore.forEach((u: any, idx: number) => {
+        newRankMap[u.username] = idx + 1;
+      });
 
-      for (const mode of leaderboardModes) {
-        const field = mode.key;
+      // Detect rank improvements on the Score leaderboard
+      for (const newUserObj of newSortedByScore) {
+        const oldRank = oldRankMap[newUserObj.username];
+        const newRank = newRankMap[newUserObj.username];
 
-        // Sort old and new snapshots by this mode's metric (descending, nulls last)
-        const sortFn = (a: any, b: any) => (b[field] || 0) - (a[field] || 0);
-        const oldSorted = [...oldUsers].sort(sortFn);
-        const newSorted = [...newUsers].sort(sortFn);
+        // Only trigger if user actually moved UP in rank (lower rank number = better)
+        if (oldRank !== undefined && newRank < oldRank) {
+          const gained = oldRank - newRank;
 
-        for (let newIdx = 0; newIdx < newSorted.length; newIdx++) {
-          const newUserObj = newSorted[newIdx];
-          const oldIdx = oldSorted.findIndex((u: any) => u.username === newUserObj.username);
-
-          // Only fire if the user actually moved up in rank
-          if (oldIdx !== -1 && newIdx < oldIdx) {
-            const ranksBefore = oldIdx + 1;
-            const ranksNow   = newIdx + 1;
-            const gained     = ranksBefore - ranksNow;
-
-            // Who occupies the slot they moved into?
-            const overtakenUser = oldSorted[newIdx];
-            const overtakenName = overtakenUser && overtakenUser.username !== newUserObj.username
-              ? overtakenUser.display_name
+          // Who held the new rank position BEFORE this sync?
+          // oldSortedByScore[newRank - 1] is the user who was at that slot before
+          const displacedUser = oldSortedByScore[newRank - 1];
+          const displacedName =
+            displacedUser && displacedUser.username !== newUserObj.username
+              ? displacedUser.display_name
               : null;
 
-            let description: string;
-            if (gained === 1 && overtakenName) {
-              description = `overtook ${overtakenName} to reach rank ${ranksNow} in the ${mode.label} leaderboard! ${mode.emoji}⚔️`;
-            } else if (overtakenName) {
-              description = `moved up ${gained} rank${gained > 1 ? 's' : ''} to rank ${ranksNow} in the ${mode.label} leaderboard, passing ${overtakenName}! ${mode.emoji}⚔️`;
-            } else {
-              description = `moved up ${gained} rank${gained > 1 ? 's' : ''} to rank ${ranksNow} in the ${mode.label} leaderboard! ${mode.emoji}⚔️`;
-            }
-
-            // Separate key per mode so they never overwrite each other or the activity update
-            const takeoverKey = `${newUserObj.username}:takeover:${field}`;
-            updatesToInsertMap[takeoverKey] = [{
-              username:     newUserObj.username,
-              display_name: newUserObj.display_name,
-              avatar_url:   newUserObj.avatar_url,
-              description,
-            }];
+          let description: string;
+          if (gained === 1 && displacedName) {
+            description = `overtook ${displacedName} to reach rank ${newRank} on the leaderboard! ⚔️`;
+          } else if (displacedName) {
+            description = `jumped ${gained} rank${gained > 1 ? 's' : ''} to rank ${newRank}, passing ${displacedName}! ⚔️`;
+          } else {
+            description = `climbed ${gained} rank${gained > 1 ? 's' : ''} up to rank ${newRank} on the leaderboard! ⚔️`;
           }
+
+          // Use a separate key so takeover never overwrites the activity notification
+          updatesToInsertMap[`${newUserObj.username}:takeover`] = [{
+            username:     newUserObj.username,
+            display_name: newUserObj.display_name,
+            avatar_url:   newUserObj.avatar_url,
+            description,
+          }];
         }
       }
     }
 
-
-    // 4. Clean previous matching update type and insert new one per key
-    const activeUpdateKeys = Object.keys(updatesToInsertMap);
-    for (const key of activeUpdateKeys) {
+    // 4. Persist notifications — each key type only replaces its own kind
+    //    Activity key  (plain username)    -> deletes old non-⚔️ rows, inserts latest
+    //    Takeover key  (username:takeover) -> deletes old ⚔️ rows, inserts latest
+    for (const key of Object.keys(updatesToInsertMap)) {
       try {
-        const isTakeover = key.includes(':takeover:');
-        const realUsername = isTakeover ? key.split(':takeover:')[0] : key;
-        const userPool = updatesToInsertMap[key];
-        if (!userPool || userPool.length === 0) continue;
+        const isTakeover = key.endsWith(':takeover');
+        const realUsername = isTakeover ? key.slice(0, -(':takeover'.length)) : key;
+        const pool = updatesToInsertMap[key];
+        if (!pool || pool.length === 0) continue;
 
-        const latestUpdate = userPool[userPool.length - 1];
+        const latestUpdate = pool[pool.length - 1];
 
-        // Only delete the same "type" of notification to preserve the other type:
-        // Takeover keys delete rows whose description contains '⚔️'
-        // Activity keys delete rows whose description does NOT contain '⚔️'
-        const existingRows = await supabaseAdmin
+        // Fetch existing rows for this user
+        const { data: existingRows, error: fetchExistingErr } = await supabaseAdmin
           .from('leaderboard_updates')
           .select('id, description')
           .eq('username', realUsername);
 
-        if (!existingRows.error && existingRows.data) {
-          const idsToDelete = existingRows.data
-            .filter((row: any) => isTakeover 
-              ? row.description.includes('⚔️') 
-              : !row.description.includes('⚔️')
+        if (!fetchExistingErr && existingRows) {
+          const idsToDelete = existingRows
+            .filter((row: any) =>
+              isTakeover
+                ? row.description.includes('⚔️')
+                : !row.description.includes('⚔️')
             )
             .map((row: any) => row.id);
 
@@ -214,17 +212,16 @@ export async function POST() {
           }
         }
 
-        // Insert the latest update for this key
         await supabaseAdmin
           .from('leaderboard_updates')
           .insert([latestUpdate]);
 
       } catch (dbErr) {
-        console.warn(`Could not update notifications for key ${key}:`, dbErr);
+        console.warn(`Could not persist notification for key "${key}":`, dbErr);
       }
     }
 
-    // 5. Database Self-Cleaning: Delete all updates older than 3 days
+    // 5. Self-clean: remove all updates older than 3 days
     try {
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
       await supabaseAdmin
