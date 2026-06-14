@@ -78,8 +78,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to save user to the database' }, { status: 500 });
     }
 
-    // Insert user joined update
+    // Insert user joined update (first delete any old updates to ensure only the latest persists)
     try {
+      await supabaseAdmin
+        .from('leaderboard_updates')
+        .delete()
+        .eq('username', newUser.username);
+
       await supabaseAdmin
         .from('leaderboard_updates')
         .insert([

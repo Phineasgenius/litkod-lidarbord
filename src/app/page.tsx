@@ -24,10 +24,12 @@ export default async function Home() {
         users = userData || [];
       }
 
-      // 2. Fetch recent updates (limit to latest 15)
+      // 2. Fetch recent updates (limit to latest 15, and filter to last 3 days)
+      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
       const { data: updateData, error: updateError } = await supabase
         .from('leaderboard_updates')
         .select('*')
+        .gte('created_at', threeDaysAgo)
         .order('created_at', { ascending: false })
         .limit(15);
 
