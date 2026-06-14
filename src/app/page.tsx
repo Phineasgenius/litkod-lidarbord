@@ -7,19 +7,35 @@ export const revalidate = 0;
 
 export default async function Home() {
   let users = [];
+  let updates = [];
   let dbError = null;
 
   try {
     if (supabase) {
-      const { data, error } = await supabase
+      // 1. Fetch user leaderboard stats
+      const { data: userData, error: userError } = await supabase
         .from('leetcode_users')
         .select('*')
         .order('score', { ascending: false });
 
-      if (error) {
-        dbError = error.message;
+      if (userError) {
+        dbError = userError.message;
       } else {
-        users = data || [];
+        users = userData || [];
+      }
+
+      // 2. Fetch recent updates (limit to latest 15)
+      const { data: updateData, error: updateError } = await supabase
+        .from('leaderboard_updates')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(15);
+
+      // If the updates table doesn't exist yet, do not crash the site
+      if (!updateError) {
+        updates = updateData || [];
+      } else {
+        console.warn('Could not fetch leaderboard updates:', updateError.message);
       }
     } else {
       dbError = 'Database credentials are not configured in your .env.local file.';
@@ -35,7 +51,7 @@ export default async function Home() {
           ⚠️ <strong>Database Connection Alert:</strong> {dbError} (Please see SQL/setup instructions in the chat)
         </div>
       )}
-      <LeaderboardClient initialUsers={users} />
+      <LeaderboardClient initialUsers={users} initialUpdates={updates} />
     </main>
   );
 }

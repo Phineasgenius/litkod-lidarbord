@@ -11,7 +11,7 @@ export async function POST() {
     // 1. Fetch all users from the leaderboard
     const { data: users, error: fetchError } = await supabaseAdmin
       .from('leetcode_users')
-      .select('id, username, last_synced_at');
+      .select('*');
 
     if (fetchError) {
       console.error('Error fetching users for sync:', fetchError);
@@ -60,6 +60,58 @@ export async function POST() {
 
         if (updateError) {
           throw updateError;
+        }
+
+        // Generate updates / milestone events
+        try {
+          const solvedDiff = stats.totalSolved - (user.total_solved || 0);
+          const newScore = stats.score;
+          const oldScore = user.score || 0;
+          const newRating = stats.contestRating;
+          const oldRating = user.contest_rating || 0;
+
+          const updatesToInsert = [];
+
+          if (solvedDiff > 0 && user.total_solved > 0) {
+            // Only log if they solved something new, and it's not the initial import (total_solved > 0)
+            updatesToInsert.push({
+              username: user.username,
+              display_name: user.display_name,
+              avatar_url: stats.avatarUrl,
+              description: `solved ${solvedDiff} new question${solvedDiff > 1 ? 's' : ''}! 🚀 (${stats.easySolved}E / ${stats.mediumSolved}M / ${stats.hardSolved}H)`,
+            });
+          }
+
+          // Score milestones (crossed 100, 250, 500, 750, 1000, etc.)
+          const scoreMilestones = [100, 250, 500, 750, 1000, 1500, 2000];
+          for (const m of scoreMilestones) {
+            if (newScore >= m && oldScore < m && oldScore > 0) {
+              updatesToInsert.push({
+                username: user.username,
+                display_name: user.display_name,
+                avatar_url: stats.avatarUrl,
+                description: `reached a score milestone of ${m} points! 🌟`,
+              });
+            }
+          }
+
+          // Rating peaks / milestones
+          if (newRating > oldRating && oldRating > 0) {
+            updatesToInsert.push({
+              username: user.username,
+              display_name: user.display_name,
+              avatar_url: stats.avatarUrl,
+              description: `reached a new peak contest rating of ${newRating}! 📈 (+${newRating - oldRating})`,
+            });
+          }
+
+          if (updatesToInsert.length > 0) {
+            await supabaseAdmin
+              .from('leaderboard_updates')
+              .insert(updatesToInsert);
+          }
+        } catch (updateErr) {
+          console.warn(`Could not log sync activities for ${user.username}:`, updateErr);
         }
 
         return { username: user.username, status: 'success' };

@@ -55,6 +55,25 @@ CREATE POLICY "Allow public read access"
 ON leetcode_users FOR SELECT 
 TO public 
 USING (true);
+
+-- Create the activity feed table to track recent milestones and updates
+CREATE TABLE leaderboard_updates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    avatar_url TEXT,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable Row Level Security (RLS) on updates
+ALTER TABLE leaderboard_updates ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read access on updates
+CREATE POLICY "Allow public read access on updates" 
+ON leaderboard_updates FOR SELECT 
+TO public 
+USING (true);
 ```
 
 ---

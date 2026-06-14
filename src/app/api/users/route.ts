@@ -78,6 +78,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to save user to the database' }, { status: 500 });
     }
 
+    // Insert user joined update
+    try {
+      await supabaseAdmin
+        .from('leaderboard_updates')
+        .insert([
+          {
+            username: newUser.username,
+            display_name: newUser.display_name,
+            avatar_url: newUser.avatar_url,
+            description: `joined the leaderboard with a score of ${newUser.score}! 🎉`,
+          },
+        ]);
+    } catch (updateErr) {
+      console.warn('Could not insert join activity update:', updateErr);
+    }
+
     return NextResponse.json({ success: true, user: newUser }, { status: 201 });
   } catch (error: any) {
     console.error('Unexpected error adding user:', error);
