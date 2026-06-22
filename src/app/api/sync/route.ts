@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { fetchLeetCodeStats } from '@/lib/leetcode';
 import { supabaseAdmin } from '@/lib/supabase';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     if (!supabaseAdmin) {
       return NextResponse.json({ error: 'Supabase is not configured on the server. Please check your environment variables.' }, { status: 500 });
@@ -22,15 +22,20 @@ export async function POST() {
       return NextResponse.json({ success: true, message: 'No users to sync.', results: [] });
     }
 
-    // Global cooldown: skip if synced within the last 15 seconds
+    // Parse if this is a manual override / forced sync
+    const { searchParams } = new URL(request.url);
+    const force = searchParams.get('force') === 'true';
+
+    // Global cooldown: skip if synced within cooldown period
+    // 5 minutes for automated sync, 15 seconds for forced manual override sync
     const mostRecentSync = Math.max(...oldUsers.map((u: any) => new Date(u.last_synced_at).getTime()));
     const timeSinceLastSync = Date.now() - mostRecentSync;
-    const COOLDOWN_MS = 15 * 1000;
+    const COOLDOWN_MS = force ? 15 * 1000 : 5 * 60 * 1000;
 
     if (timeSinceLastSync < COOLDOWN_MS) {
       return NextResponse.json(
         {
-          error: 'Please wait at least 15 seconds between sync operations.',
+          error: `Please wait at least ${force ? '15 seconds' : '5 minutes'} between sync operations.`,
           retryAfterSeconds: Math.ceil((COOLDOWN_MS - timeSinceLastSync) / 1000),
         },
         { status: 429 }

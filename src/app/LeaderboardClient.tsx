@@ -83,6 +83,23 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
     setUsers(initialUsers);
   }, [initialUsers]);
 
+  // Automated background sync on page load (runs silently in background)
+  useEffect(() => {
+    const runAutomatedSync = async () => {
+      try {
+        const response = await fetch('/api/sync', {
+          method: 'POST',
+        });
+        if (response.ok) {
+          router.refresh();
+        }
+      } catch (err) {
+        console.warn('Automated background sync failed:', err);
+      }
+    };
+    runAutomatedSync();
+  }, [router]);
+
   // Staggered slide-in for updates as Windows-style notifications
   useEffect(() => {
     if (initialUpdates.length === 0) return;
@@ -205,7 +222,7 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
     setSyncMessage(null);
 
     try {
-      const response = await fetch('/api/sync', {
+      const response = await fetch('/api/sync?force=true', {
         method: 'POST',
       });
 
@@ -647,7 +664,7 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
                   <input 
                     type="password" 
                     id="secret-passkey"
-                    placeholder="Enter 'imalitkodar'"
+                    placeholder="Enter secret passkey"
                     value={secretKey}
                     onChange={(e) => setSecretKey(e.target.value)}
                     required
