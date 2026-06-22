@@ -1,0 +1,21 @@
+name: Scheduled Leaderboard Sync
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Run every 15 minutes
+  workflow_dispatch: # Allow manual trigger from GitHub Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Sync API
+        run: |
+          URL="${{ secrets.LEETCODE_LEADERBOARD_URL }}"
+          if [ -z "$URL" ]; then
+            echo "Error: LEETCODE_LEADERBOARD_URL secret is not set."
+            echo "Please go to Repository Settings > Secrets and Variables > Actions and add LEETCODE_LEADERBOARD_URL with your hosted website domain (e.g. https://your-site.vercel.app)."
+            exit 1
+          fi
+          echo "Triggering automated sync at $URL/api/sync..."
+          curl -X POST "$URL/api/sync" -H "Content-Type: application/json" -f

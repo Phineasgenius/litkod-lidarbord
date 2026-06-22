@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Plus, 
@@ -83,7 +83,7 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
     setUsers(initialUsers);
   }, [initialUsers]);
 
-  // Automated background sync on page load (runs silently in background)
+  // Automated background sync on page load and periodically (every 5 minutes)
   useEffect(() => {
     const runAutomatedSync = async () => {
       try {
@@ -97,15 +97,34 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
         console.warn('Automated background sync failed:', err);
       }
     };
+    
+    // Run once on load
     runAutomatedSync();
+
+    // Check/sync every 5 minutes while page is kept open
+    const interval = setInterval(() => {
+      runAutomatedSync();
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, [router]);
+
+  // Track which updates have already been displayed
+  const shownUpdateIdsRef = useRef<Set<string>>(new Set());
 
   // Staggered slide-in for updates as Windows-style notifications
   useEffect(() => {
     if (initialUpdates.length === 0) return;
 
+    // Filter to only new updates we haven't shown in this session yet
+    const newUpdates = initialUpdates.filter(update => !shownUpdateIdsRef.current.has(update.id));
+    if (newUpdates.length === 0) return;
+
+    // Mark these updates as shown immediately
+    newUpdates.forEach(u => shownUpdateIdsRef.current.add(u.id));
+
     // Display only the latest 4 updates to avoid cluttering the screen
-    const recentUpdates = initialUpdates.slice(0, 4);
+    const recentUpdates = newUpdates.slice(0, 4);
 
     recentUpdates.forEach((update, idx) => {
       setTimeout(() => {

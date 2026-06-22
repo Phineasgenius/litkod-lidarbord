@@ -27,15 +27,15 @@ export async function POST(request: Request) {
     const force = searchParams.get('force') === 'true';
 
     // Global cooldown: skip if synced within cooldown period
-    // 5 minutes for automated sync, 15 seconds for forced manual override sync
+    // 15 minutes for automated sync, 15 seconds for forced manual override sync
     const mostRecentSync = Math.max(...oldUsers.map((u: any) => new Date(u.last_synced_at).getTime()));
     const timeSinceLastSync = Date.now() - mostRecentSync;
-    const COOLDOWN_MS = force ? 15 * 1000 : 5 * 60 * 1000;
+    const COOLDOWN_MS = force ? 15 * 1000 : 15 * 60 * 1000;
 
     if (timeSinceLastSync < COOLDOWN_MS) {
       return NextResponse.json(
         {
-          error: `Please wait at least ${force ? '15 seconds' : '5 minutes'} between sync operations.`,
+          error: `Please wait at least ${force ? '15 seconds' : '15 minutes'} between sync operations.`,
           retryAfterSeconds: Math.ceil((COOLDOWN_MS - timeSinceLastSync) / 1000),
         },
         { status: 429 }
