@@ -252,25 +252,24 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
 
       if (response.status === 429) {
         setCooldownTime(data.retryAfterSeconds || 15);
-        const errMs = data.error || 'Please wait before syncing again';
-        showSystemToast(errMs, true);
-        throw new Error(errMs);
+        throw new Error(data.error || 'Please wait before syncing again');
       }
 
       if (!response.ok) {
-        const errMs = data.error || 'Sync failed';
-        showSystemToast(errMs, true);
-        throw new Error(errMs);
+        throw new Error(data.error || 'Sync failed');
       }
 
-      showSystemToast(data.message || 'Sync completed successfully! 🚀');
+      setSyncMessage(data.message || 'Sync successful!');
       router.refresh();
+
+      setTimeout(() => {
+        setSyncMessage(null);
+      }, 3000);
     } catch (err: any) {
       setSyncError(err.message || 'An error occurred during sync');
-      // If not already toasted by response error checks
-      if (!err.message.includes('Please wait') && !err.message.includes('Sync failed')) {
-        showSystemToast(err.message || 'Network error occurred during sync', true);
-      }
+      setTimeout(() => {
+        setSyncError(null);
+      }, 5000);
     } finally {
       setIsSyncing(false);
     }
