@@ -83,28 +83,11 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
     setUsers(initialUsers);
   }, [initialUsers]);
 
-  // Automated background sync on page load and periodically (every 5 minutes)
+  // Poll the database (via Next.js server components) every 60 seconds for live updates
   useEffect(() => {
-    const runAutomatedSync = async () => {
-      try {
-        const response = await fetch('/api/sync', {
-          method: 'POST',
-        });
-        if (response.ok) {
-          router.refresh();
-        }
-      } catch (err) {
-        console.warn('Automated background sync failed:', err);
-      }
-    };
-    
-    // Run once on load
-    runAutomatedSync();
-
-    // Check/sync every 5 minutes while page is kept open
     const interval = setInterval(() => {
-      runAutomatedSync();
-    }, 5 * 60 * 1000);
+      router.refresh();
+    }, 60 * 1000);
 
     return () => clearInterval(interval);
   }, [router]);

@@ -2,7 +2,7 @@ name: Scheduled Leaderboard Sync
 
 on:
   schedule:
-    - cron: '*/15 * * * *' # Run every 15 minutes
+    - cron: '0,30 * * * *' # Run every 30 minutes (00:00, 00:30, 01:00, 01:30, etc.)
   workflow_dispatch: # Allow manual trigger from GitHub Actions tab
 
 jobs:
