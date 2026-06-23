@@ -96,33 +96,7 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
 
   // Staggered slide-in for updates as Windows-style notifications
   useEffect(() => {
-    if (initialUpdates.length === 0) return;
-
-    // Filter to only new updates we haven't shown in this session yet
-    const newUpdates = initialUpdates.filter(update => !shownUpdateIdsRef.current.has(update.id));
-    if (newUpdates.length === 0) return;
-
-    // Mark these updates as shown immediately
-    newUpdates.forEach(u => shownUpdateIdsRef.current.add(u.id));
-
-    // Display only the latest 4 updates to avoid cluttering the screen
-    const recentUpdates = newUpdates.slice(0, 4);
-
-    recentUpdates.forEach((update, idx) => {
-      setTimeout(() => {
-        // Add toast
-        setToasts((prev) => [
-          ...prev, 
-          { ...update, visible: true, exiting: false }
-        ]);
-
-        // Trigger exit animation after 8 seconds
-        setTimeout(() => {
-          triggerToastExit(update.id);
-        }, 8000);
-
-      }, idx * 1500); // Stagger arrival every 1.5 seconds
-    });
+    displayUpdateToasts(initialUpdates);
   }, [initialUpdates]);
 
   const triggerToastExit = (id: string) => {
@@ -235,6 +209,27 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
     }, 8000);
   };
 
+  const displayUpdateToasts = (updates: LeaderboardUpdate[]) => {
+    const newUpdates = updates.filter((update) => !shownUpdateIdsRef.current.has(update.id));
+    if (newUpdates.length === 0) return;
+
+    newUpdates.forEach((update) => shownUpdateIdsRef.current.add(update.id));
+    const recentUpdates = newUpdates.slice(0, 4);
+
+    recentUpdates.forEach((update, idx) => {
+      setTimeout(() => {
+        setToasts((prev) => [
+          ...prev,
+          { ...update, visible: true, exiting: false }
+        ]);
+
+        setTimeout(() => {
+          triggerToastExit(update.id);
+        }, 8000);
+      }, idx * 1500);
+    });
+  };
+
   const handleSyncAll = async () => {
     if (isSyncing || cooldownTime > 0) return;
 
@@ -256,6 +251,10 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
 
       if (!response.ok) {
         throw new Error(data.error || 'Sync failed');
+      }
+
+      if (Array.isArray(data.activityUpdates) && data.activityUpdates.length > 0) {
+        displayUpdateToasts(data.activityUpdates);
       }
 
       setSyncMessage(data.message || 'Sync successful!');

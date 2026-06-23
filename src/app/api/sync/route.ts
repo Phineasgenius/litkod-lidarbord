@@ -187,6 +187,8 @@ export async function POST(request: Request) {
       }
     }
 
+    const insertedUpdates: any[] = [];
+
     // 4. Persist notifications — each key type only replaces its own kind
     //    Activity key  (plain username)    -> deletes old non-⚔️ rows, inserts latest
     //    Takeover key  (username:takeover) -> deletes old ⚔️ rows, inserts latest
@@ -222,10 +224,18 @@ export async function POST(request: Request) {
           }
         }
 
-        await supabaseAdmin
+        const { data: insertedRows, error: insertError } = await supabaseAdmin
           .from('leaderboard_updates')
-          .insert([latestUpdate]);
+          .insert([latestUpdate])
+          .select('*');
 
+        if (insertError) {
+          throw insertError;
+        }
+
+        if (insertedRows && insertedRows.length > 0) {
+          insertedUpdates.push(insertedRows[0]);
+        }
       } catch (dbErr) {
         console.warn(`Could not persist notification for key "${key}":`, dbErr);
       }
@@ -249,6 +259,7 @@ export async function POST(request: Request) {
       success: true,
       message: `Sync completed. Success: ${successful}, Failed: ${failed}`,
       results,
+      activityUpdates: insertedUpdates,
     });
   } catch (error: any) {
     console.error('Unexpected error in sync endpoint:', error);
