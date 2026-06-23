@@ -1089,6 +1089,18 @@
   flex-shrink: 0;
 }
 
+.toastSystemIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1.5px solid var(--glass-border);
+}
+
+
 .toastContent {
   display: flex;
   flex-direction: column;

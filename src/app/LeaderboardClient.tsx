@@ -216,6 +216,26 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
     }
   };
 
+  const showSystemToast = (message: string, isError: boolean = false) => {
+    const systemToast: ToastNotification = {
+      id: `system-${Date.now()}`,
+      username: 'system',
+      display_name: isError ? 'Sync Alert ⚠️' : 'Sync Status 🔄',
+      avatar_url: null,
+      description: message,
+      created_at: new Date().toISOString(),
+      visible: true,
+      exiting: false
+    };
+
+    setToasts((prev) => [...prev, systemToast]);
+
+    // Trigger exit animation after 8 seconds
+    setTimeout(() => {
+      triggerToastExit(systemToast.id);
+    }, 8000);
+  };
+
   const handleSyncAll = async () => {
     if (isSyncing || cooldownTime > 0) return;
 
@@ -232,24 +252,25 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
 
       if (response.status === 429) {
         setCooldownTime(data.retryAfterSeconds || 15);
-        throw new Error(data.error || 'Please wait before syncing again');
+        const errMs = data.error || 'Please wait before syncing again';
+        showSystemToast(errMs, true);
+        throw new Error(errMs);
       }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Sync failed');
+        const errMs = data.error || 'Sync failed';
+        showSystemToast(errMs, true);
+        throw new Error(errMs);
       }
 
-      setSyncMessage(data.message || 'Sync successful!');
+      showSystemToast(data.message || 'Sync completed successfully! 🚀');
       router.refresh();
-
-      setTimeout(() => {
-        setSyncMessage(null);
-      }, 3000);
     } catch (err: any) {
       setSyncError(err.message || 'An error occurred during sync');
-      setTimeout(() => {
-        setSyncError(null);
-      }, 5000);
+      // If not already toasted by response error checks
+      if (!err.message.includes('Please wait') && !err.message.includes('Sync failed')) {
+        showSystemToast(err.message || 'Network error occurred during sync', true);
+      }
     } finally {
       setIsSyncing(false);
     }
@@ -581,12 +602,24 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
             key={toast.id} 
             className={`${styles.toastCard} ${toast.exiting ? styles.toastCardExit : ''}`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={toast.avatar_url || 'https://assets.leetcode.com/users/default_avatar.jpg'} 
-              alt={toast.display_name} 
-              className={styles.toastAvatar}
-            />
+            {toast.username === 'system' ? (
+              <div 
+                className={styles.toastSystemIcon} 
+                style={{ 
+                  background: toast.display_name.includes('Alert') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)', 
+                  color: toast.display_name.includes('Alert') ? '#ef4444' : '#10b981' 
+                }}
+              >
+                {toast.display_name.includes('Alert') ? <AlertTriangle size={18} /> : <RefreshCw size={18} />}
+              </div>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img 
+                src={toast.avatar_url || 'https://assets.leetcode.com/users/default_avatar.jpg'} 
+                alt={toast.display_name} 
+                className={styles.toastAvatar}
+              />
+            )}
             <div className={styles.toastContent}>
               <div className={styles.toastUserHeader}>
                 <span className={styles.toastUserName}>{toast.display_name}</span>
