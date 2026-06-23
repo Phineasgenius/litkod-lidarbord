@@ -25,12 +25,17 @@ export async function POST(request: Request) {
     // Parse if this is a manual override / forced sync
     const { searchParams } = new URL(request.url);
     const force = searchParams.get('force') === 'true';
+    const cron = searchParams.get('cron') === 'true';
 
     // Global cooldown: skip if synced within cooldown period
     // 25 minutes for automated sync, 15 seconds for forced manual override sync
     const mostRecentSync = Math.max(...oldUsers.map((u: any) => new Date(u.last_synced_at).getTime()));
     const timeSinceLastSync = Date.now() - mostRecentSync;
-    const COOLDOWN_MS = force ? 15 * 1000 : 25 * 60 * 1000;
+    const COOLDOWN_MS = cron
+    ? 0
+    : force
+    ? 15 * 1000
+    : 25 * 60 * 1000;
 
     if (timeSinceLastSync < COOLDOWN_MS) {
       return NextResponse.json(

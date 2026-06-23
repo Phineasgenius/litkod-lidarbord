@@ -2,7 +2,7 @@ name: Scheduled Leaderboard Sync
 
 on:
   schedule:
-    - cron: '0,30 * * * *' # Run every 30 minutes (00:00, 00:30, 01:00, 01:30, etc.)
+    - cron: '*/30 * * * *' # Run every 30 minutes (00:00, 00:30, 01:00, 01:30, etc.)
   workflow_dispatch: # Allow manual trigger from GitHub Actions tab
 
 jobs:
@@ -18,4 +18,6 @@ jobs:
             exit 1
           fi
           echo "Triggering automated sync at $URL/api/sync..."
-          curl -X POST "$URL/api/sync" -H "Content-Type: application/json" -f
+          curl -X POST "$URL/api/sync?cron=true" \
+          -H "Content-Type: application/json" \
+          -f
