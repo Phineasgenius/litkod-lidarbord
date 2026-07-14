@@ -39,7 +39,7 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent-primary), hsl(260, 80%, 65%));
+  background: linear-gradient(135deg, var(--accent-primary), #ff3d5a);
   box-shadow: 0 0 20px var(--accent-primary-glow);
 }
 
@@ -52,7 +52,7 @@
 .title {
   font-size: 1.75rem;
   font-weight: 700;
-  background: linear-gradient(to right, var(--text-primary), hsl(210, 40%, 85%));
+  background: linear-gradient(to right, var(--text-primary), #7C7A7A);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -462,7 +462,7 @@
 .searchInput:focus {
   border-color: var(--accent-primary);
   background: var(--bg-secondary);
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 15px rgba(255, 93, 115, 0.15);
 }
 
 .clearSearch {
@@ -821,7 +821,7 @@
 
 .modalInput:focus {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 10px rgba(255, 93, 115, 0.15);
 }
 
 .formTip {
@@ -896,9 +896,9 @@
 }
 
 .infoAlert {
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  color: hsl(210, 40%, 90%);
+  background: rgba(255, 93, 115, 0.08);
+  border: 1px solid rgba(255, 93, 115, 0.2);
+  color: #FFFFFF;
   padding: 1rem 1.25rem;
   border-radius: 10px;
   margin-bottom: 2rem;
