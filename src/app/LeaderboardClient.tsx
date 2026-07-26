@@ -12,7 +12,9 @@ import {
   X, 
   User, 
   AlertTriangle, 
-  Check
+  Check,
+  Sun,
+  Moon
 } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -53,6 +55,24 @@ interface LeaderboardClientProps {
 
 export default function LeaderboardClient({ initialUsers, initialUpdates }: LeaderboardClientProps) {
   const router = useRouter();
+
+  // Theme State
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Load theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    const initialTheme = savedTheme || 'light';
+    setTheme(initialTheme);
+    document.documentElement.setAttribute('data-theme', initialTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
   
   // Leaderboard State
   const [users, setUsers] = useState<DatabaseUser[]>(initialUsers);
@@ -319,6 +339,16 @@ export default function LeaderboardClient({ initialUsers, initialUpdates }: Lead
         </div>
 
         <div className={styles.actionGroup}>
+          <button 
+            onClick={toggleTheme}
+            className={`${styles.button} ${styles.buttonSecondary}`}
+            style={{ padding: '0.75rem', minWidth: '42px' }}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            aria-label="Toggle light/dark theme"
+          >
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
+          
           {syncError && <span className={styles.syncErrorLabel}><AlertTriangle size={14} /> {syncError}</span>}
           {syncMessage && <span className={styles.syncSuccessLabel}><Check size={14} /> {syncMessage}</span>}
           

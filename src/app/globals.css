@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700..800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Colors in style of monitoryt.com */
+  /* Colors in style of monitoryt.com - Light Mode (Default) */
   --bg-primary: #fbf3e4;
-  --bg-secondary: #f3e4c6;
-  --bg-tertiary: #e7d3ae;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f3e4c6;
   --text-primary: #1b1712;
   --text-secondary: #5a5044;
   --text-muted: #8c7e6c;
@@ -59,6 +59,68 @@
   --transition-fast: 0.1s ease;
   --transition-normal: 0.15s ease;
   --transition-slow: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Dot grid & Paper grain variables */
+  --dot-grid-color: rgba(27, 23, 18, 0.08);
+  --grain-blend: multiply;
+  --grain-opacity: 0.35;
+}
+
+[data-theme="dark"] {
+  /* Colors in style of monitoryt.com - Dark Mode */
+  --bg-primary: #12100e;
+  --bg-secondary: #1d1a16;
+  --bg-tertiary: #2e2822;
+  --text-primary: #fbf3e4;
+  --text-secondary: #a89c8c;
+  --text-muted: #73685a;
+  
+  --accent-primary: #ff4a3f;
+  --accent-primary-glow: rgba(255, 74, 63, 0.2);
+  
+  --paper: #12100e;
+  --paper-deep: #1d1a16;
+  --ink: #fbf3e4;
+  --ink-soft: #a89c8c;
+  
+  --red: #ff4a3f;
+  --red-deep: #ff655b;
+  --yellow: #ffd35c;
+  --teal: #41d2bd;
+  --sky: #8bbbff;
+  --coral: #ffb19e;
+  --lilac: #d5bfff;
+  
+  --shadow: 4px 4px 0 var(--ink);
+  --shadow-lg: 8px 8px 0 var(--ink);
+  --radius: 12px;
+  
+  /* Difficulty colors - integrated with neobrutalist style */
+  --lc-easy: #41d2bd;
+  --lc-easy-bg: rgba(65, 210, 189, 0.15);
+  --lc-medium: #ffd35c;
+  --lc-medium-bg: rgba(255, 211, 92, 0.15);
+  --lc-hard: #ff4a3f;
+  --lc-hard-bg: rgba(255, 74, 63, 0.15);
+  
+  /* Podiums */
+  --gold: #ffd35c;
+  --gold-glow: rgba(255, 211, 92, 0.2);
+  --silver: #829cb2;
+  --silver-glow: rgba(130, 156, 178, 0.2);
+  --bronze: #ffb19e;
+  --bronze-glow: rgba(255, 177, 158, 0.2);
+  
+  /* Neobrutalist border replacement for glassmorphism */
+  --glass-bg: #1d1a16;
+  --glass-border: var(--ink);
+  --glass-border-hover: var(--ink);
+  --glass-shadow: var(--shadow);
+
+  /* Dot grid & Paper grain variables */
+  --dot-grid-color: rgba(251, 243, 228, 0.07);
+  --grain-blend: overlay;
+  --grain-opacity: 0.15;
 }
 
 /* Base resets */
@@ -72,7 +134,7 @@ body {
   background-color: var(--paper);
   background-image: radial-gradient(
     circle at 1px 1px,
-    rgba(27, 23, 18, 0.08) 1px,
+    var(--dot-grid-color) 1px,
     transparent 0
   );
   background-size: 22px 22px;
@@ -83,6 +145,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.55;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 /* Paper grain overlay in style of monitoryt.com */
@@ -92,9 +155,10 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.35;
-  mix-blend-mode: multiply;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  transition: opacity var(--transition-normal);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -102,6 +166,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--ink);
+  transition: color var(--transition-normal);
 }
 
 a {
