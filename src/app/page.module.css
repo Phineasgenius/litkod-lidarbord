@@ -252,18 +252,18 @@
   width: 320px;
   padding: 2.75rem 2rem;
   z-index: 10;
-  background: #ffffff;
+  background: var(--bg-secondary);
 }
 
 /* Podium Rank Highlights */
 .goldMedal {
-  background: #ffffff;
+  background: var(--bg-secondary);
 }
 .silverMedal {
-  background: #ffffff;
+  background: var(--bg-secondary);
 }
 .bronzeMedal {
-  background: #ffffff;
+  background: var(--bg-secondary);
 }
 
 /* Avatar details */
