@@ -107,7 +107,7 @@
 }
 
 .buttonSecondary {
-  background: #ffffff;
+  background: var(--bg-secondary);
   color: var(--ink);
   box-shadow: 3px 3px 0 var(--ink);
 }
@@ -441,7 +441,7 @@
 
 .searchInput {
   width: 100%;
-  background: #ffffff;
+  background: var(--bg-secondary);
   border: 2.5px solid var(--ink);
   border-radius: 10px;
   padding: 0.85rem 1rem 0.85rem 3rem;
@@ -453,7 +453,7 @@
 }
 
 .searchInput:focus {
-  background: #ffffff;
+  background: var(--bg-secondary);
   transform: translate(-1px, -1px);
   box-shadow: 4px 4px 0 var(--ink);
 }
@@ -513,7 +513,7 @@
 }
 
 .sortButtonActive {
-  background: #ffffff;
+  background: var(--bg-secondary);
   color: var(--ink);
   border-color: var(--ink);
 }
@@ -676,7 +676,7 @@
 
 .totalPill {
   color: var(--ink);
-  background: #ffffff;
+  background: var(--bg-secondary);
 }
 
 /* Rating Column */
@@ -761,9 +761,9 @@
   color: var(--ink);
   cursor: pointer;
   padding: 0.35rem;
-  border-radius: 50%;
+  border-radius: 6px;
   border: 2px solid var(--ink);
-  background: #ffffff;
+  background: var(--bg-secondary);
   box-shadow: 2px 2px 0 var(--ink);
   display: flex;
   align-items: center;
@@ -827,7 +827,7 @@
 }
 
 .modalInput {
-  background: #ffffff;
+  background: var(--bg-secondary);
   border: 2.5px solid var(--ink);
   border-radius: 8px;
   padding: 0.75rem 1rem;
